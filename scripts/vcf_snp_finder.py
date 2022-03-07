@@ -1,16 +1,15 @@
 
 """
-Viewing VCF with pandas and parsing and identifying SNPs using cyvcf2
+Viewing VCF with pandas and parsing and identifying SNPs using pyvcf
 Run the script as follows: python vcf_snp_finder.py PATH_TO_VCF_FILE PATH_TO_TEXT_FILE_OF_SNP_IDS
 
 Author: Maryam Vazirabad
-Date: 2/22/2022
+Date: 3/06/2022
 """
 import sys
 import io
 import os
-import cyvcf2
-from cyvcf2 import VCF
+import vcf
 import numpy as np
 from pathlib import Path
 import pandas as pd
@@ -69,14 +68,14 @@ if __name__ == "__main__":
      try:
           vcf_path = sys.argv[1] #path to vcf file (vcf or vcf.gz)
           assert vcf_path.endswith('.vcf') or vcf_path.endswith('vcf.gz'), 'Invalid file type'
-          vcf = cyvcf2.VCF(Path(vcf_path))  # using cyvcf2 to iterate and query VCF file
+          vcf_reader = vcf.Reader(open(Path(vcf_path), 'r'))
           vcf_df = vcf_to_df(Path(vcf_path))  # function for converting vcf to pandas dataframe
           if len(sys.argv) == 3:
                txt_path = sys.argv[2]  # path to txt file of SNP IDs
                assert txt_path.endswith('.txt'), 'Invalid file type'
-               find_specific_SNPs(vcf, txt_path, vcf_df) # function for finding specfic SNPs from given list
+               find_specific_SNPs(vcf_reader, txt_path, vcf_df) # function for finding specfic SNPs from given list
           else:
-               find_any_snps(vcf)  # function for finding any SNPs in VCF
+               find_any_snps(vcf_reader)  # function for finding any SNPs in VCF
      except IndexError:
           print("You did not specify a file")
           sys.exit(1) #abort due to error
